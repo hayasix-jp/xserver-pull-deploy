@@ -1,0 +1,33 @@
+# Tests of xserver-pull-deploy itself. Local fakes only (a fake GitHub API on 127.0.0.1, a fake docroot): no network.
+# Linux uses the real rsync and flock; Windows (Git Bash) uses the rsync stand-in and the mkdir lock.
+name: Test
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, node: 20 }
+          - { os: ubuntu-latest, node: 22 }
+          - { os: windows-latest, node: 22 }
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+      - name: rsync
+        if: runner.os == 'Linux'
+        run: command -v rsync || (sudo apt-get update && sudo apt-get install -y rsync)
+      - name: Test
+        shell: bash
+        run: npm test

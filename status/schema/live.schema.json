@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "xserver-pull-deploy/live.schema.json",
+  "title": "/_deploy/live.json — what is live",
+  "type": "object",
+  "required": ["release", "published_at", "commit", "dirty", "source"],
+  "properties": {
+    "release": { "type": "string", "pattern": "^[0-9]{8}-[0-9]{6}(-[0-9]{2,})?$", "description": "server release id (xpd list)" },
+    "published_at": { "type": "string", "description": "ISO 8601 with offset, server time zone" },
+    "commit": { "type": "string", "pattern": "^([0-9a-f]{40})?$", "description": "source commit; empty when published without git" },
+    "dirty": { "type": "boolean", "description": "published from a PC with uncommitted changes (--allow-dirty)" },
+    "source": { "enum": ["local", "pull", "rollback"] }
+  },
+  "additionalProperties": true
+}

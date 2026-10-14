@@ -1,0 +1,6 @@
+# LF everywhere: the server scripts run under POSIX sh on the server, .htaccess is pinned by sha256 (the bundle
+# normalises .htaccess to LF too, this keeps checkouts and diffs consistent on Windows).
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.gz binary

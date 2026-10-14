@@ -1,0 +1,12 @@
+// xpd.config.mjs — the same as xpd.config.json, but computed. Rename to xpd.config.mjs to use it
+// (xpd.config.json wins when both exist).
+export default {
+  name: 'astro-example',
+  // check the JS budget or run tests as part of the build, if you like
+  build: 'npm run build && npm run test --if-present',
+  outDir: 'dist',
+  siteUrl: process.env.SITE_URL ?? 'https://example.com',
+  keep: 5,
+  // never touched by a deploy (in addition to /.well-known/ and /_deploy/)
+  protect: ['/google*.html'],
+};

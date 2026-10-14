@@ -1,0 +1,9 @@
+{
+  "name": "astro-example",
+  "build": "npm run build",
+  "outDir": "dist",
+  "siteUrl": "https://example.com",
+  "branch": "main",
+  "keep": 5,
+  "protect": []
+}

@@ -1,0 +1,50 @@
+{
+  "name": "xserver-pull-deploy",
+  "version": "0.1.0",
+  "description": "Publish a static site to Xserver (and similar shared hosting) from GitHub without opening SSH to overseas IPs: the server pulls, verifies and swaps atomically. Also safe atomic deploys from a PC, rollback and a status JSON.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hayasix-jp/xserver-pull-deploy.git"
+  },
+  "homepage": "https://github.com/hayasix-jp/xserver-pull-deploy#readme",
+  "bugs": {
+    "url": "https://github.com/hayasix-jp/xserver-pull-deploy/issues"
+  },
+  "type": "module",
+  "bin": {
+    "xpd": "bin/xpd.mjs"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "server/",
+    "templates/",
+    "status/",
+    "docs/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "SECURITY.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node test/run.mjs",
+    "test:unit": "node test/run.mjs unit",
+    "lint:sh": "sh -n server/remote-deploy.sh && sh -n server/pull.sh"
+  },
+  "keywords": [
+    "xserver",
+    "deploy",
+    "static-site",
+    "github-actions",
+    "rsync",
+    "pull-deploy",
+    "astro",
+    "hugo",
+    "vite"
+  ],
+  "license": "MIT",
+  "author": "ITSUMONO WORKS (https://itsumonoworks.com)"
+}

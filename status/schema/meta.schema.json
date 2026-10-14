@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "xserver-pull-deploy/meta.schema.json",
+  "title": "/_deploy/meta.json — the META.json of the live release (or {} when over 8 KB)",
+  "type": "object",
+  "properties": {
+    "commit": { "type": "string" },
+    "subject": { "type": "string", "maxLength": 200, "description": "UNTRUSTED free text (the commit subject): render as text only" },
+    "source": { "enum": ["local", "github-actions"] },
+    "trigger": { "type": "string", "description": "push | manual | local | … (XPD_TRIGGER)" },
+    "run_url": { "type": "string" },
+    "built_at": { "type": "string" },
+    "force": { "type": "boolean" },
+    "dirty": { "type": "boolean" },
+    "tool": { "type": "string" },
+    "action": { "const": "rollback", "description": "only in rollback requests (never in a published release)" },
+    "release": { "type": "string" }
+  },
+  "additionalProperties": true
+}

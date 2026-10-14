@@ -1,0 +1,25 @@
+# Example .htaccess for a plain HTML site (publish changes to this file with `xpd deploy` from the PC).
+Options -Indexes
+RewriteEngine On
+
+RewriteCond %{ENV:REDIRECT_STATUS} !^$
+RewriteRule ^ - [L]
+
+# free SSL: never redirect /.well-known/
+RewriteRule ^\.well-known/ - [L]
+
+# /_deploy/: only the status files and kick.php
+RewriteRule ^_deploy(?:$|/(?!(?:live|meta|pull)\.json$|kick\.php$)) - [F,L]
+
+# http → https (replace example.com with your domain)
+RewriteCond %{HTTPS} !on
+RewriteRule ^(.*)$ https://example.com/$1 [R=301,L]
+
+ErrorDocument 404 /404.html
+
+<IfModule mod_headers.c>
+  Header set Cache-Control "no-cache"
+  <If "%{REQUEST_URI} =~ m#^/_deploy/#">
+    Header set Cache-Control "no-store"
+  </If>
+</IfModule>

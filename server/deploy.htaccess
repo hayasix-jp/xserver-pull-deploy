@@ -1,0 +1,23 @@
+# <docroot>/_deploy/.htaccess — installed by a PC deploy (xserver-pull-deploy). Deploys never write to /_deploy/.
+# Only the three status files and kick.php are reachable; the folder listing and anything else is 403.
+# (The site's own root .htaccess can carry the same rule; see templates/htaccess-snippet.)
+# Note: a RewriteEngine in this folder replaces the root .htaccess rewrite rules for /_deploy/ (Apache does not
+# inherit them by default), so e.g. an http → https redirect does not apply here. The files hold no secrets.
+Options -Indexes
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^(?!(?:live|meta|pull)\.json$|kick\.php$) - [F,L]
+</IfModule>
+<IfModule !mod_rewrite.c>
+  <FilesMatch ".*">
+    Require all denied
+  </FilesMatch>
+  <FilesMatch "^((live|meta|pull)\.json|kick\.php)$">
+    Require all granted
+  </FilesMatch>
+</IfModule>
+<IfModule mod_headers.c>
+  Header set Cache-Control "no-store"
+  Header set X-Robots-Tag "noindex, nofollow"
+  Header set X-Content-Type-Options "nosniff"
+</IfModule>

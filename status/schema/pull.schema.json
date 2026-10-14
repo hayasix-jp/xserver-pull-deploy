@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "xserver-pull-deploy/pull.schema.json",
+  "title": "/_deploy/pull.json — the server's last check of GitHub (pull.sh)",
+  "type": "object",
+  "required": ["checked_at", "state", "message", "deploy_ref", "deploy_commit", "main_commit", "build", "token_expires_at"],
+  "properties": {
+    "checked_at": { "type": "string", "description": "ISO 8601; older than ~15 min = the cron has stopped" },
+    "state": { "enum": ["idle", "deploying", "error"] },
+    "message": { "type": "string", "description": "fixed Japanese sentence from pull.sh when state is error / deploying" },
+    "deploy_ref": { "type": "string", "pattern": "^([0-9a-f]{40})?$", "description": "commit of the deploy branch" },
+    "deploy_commit": { "type": "string", "pattern": "^([0-9a-f]{40})?$", "description": "source commit inside that bundle" },
+    "main_commit": { "type": "string", "pattern": "^([0-9a-f]{40})?$", "description": "latest commit of the source branch" },
+    "build": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "properties": {
+            "state": { "enum": ["building", "success", "failed", "unknown"] },
+            "commit": { "type": "string", "pattern": "^([0-9a-f]{40})?$" },
+            "run_url": { "type": "string", "description": "https://github.com/<owner>/<repo>/actions/runs/<n> or empty" },
+            "message": { "type": "string" },
+            "at": { "type": "string" }
+          }
+        }
+      ]
+    },
+    "token_expires_at": { "type": "string", "description": "expiry of the server's read-only token (empty when unknown)" }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,17 @@
+# Copied verbatim into dist/ by Astro. Publish changes with `xpd deploy` from the PC.
+Options -Indexes
+RewriteEngine On
+RewriteCond %{ENV:REDIRECT_STATUS} !^$
+RewriteRule ^ - [L]
+RewriteRule ^\.well-known/ - [L]
+RewriteRule ^_deploy(?:$|/(?!(?:live|meta|pull)\.json$|kick\.php$)) - [F,L]
+ErrorDocument 404 /404.html
+<IfModule mod_headers.c>
+  Header set Cache-Control "no-cache"
+  <If "%{REQUEST_URI} =~ m#^/_astro/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+  <If "%{REQUEST_URI} =~ m#^/_deploy/#">
+    Header set Cache-Control "no-store"
+  </If>
+</IfModule>

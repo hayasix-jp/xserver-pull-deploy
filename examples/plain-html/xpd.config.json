@@ -1,0 +1,9 @@
+{
+  "name": "plain-html-example",
+  "build": "",
+  "outDir": "public",
+  "siteUrl": "https://example.com",
+  "branch": "main",
+  "keep": 5,
+  "protect": ["/uploads/"]
+}

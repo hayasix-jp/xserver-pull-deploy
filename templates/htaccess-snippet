@@ -1,0 +1,28 @@
+# ---- xserver-pull-deploy ------------------------------------------------------------------------------------------
+# Copy into your site's root .htaccess (e.g. public/.htaccess or static/.htaccess, so the build copies it to outDir),
+# near the top, right after "RewriteEngine On". Every PC deploy also installs <docroot>/_deploy/.htaccess with the
+# same restriction, so this is defence in depth (and it keeps working if that folder file is ever removed).
+#
+# Changing any .htaccess must be published from the PC (xpd deploy): the pull path refuses a bundle whose .htaccess
+# files differ from what the last PC deploy recorded (htaccess.pin).
+
+RewriteEngine On
+
+# Internal subrequests (e.g. the ErrorDocument for a missing file) are never redirected.
+RewriteCond %{ENV:REDIRECT_STATUS} !^$
+RewriteRule ^ - [L]
+
+# Free SSL (Let's Encrypt) issue/renewal: never redirect /.well-known/.
+RewriteRule ^\.well-known/ - [L]
+
+# /_deploy/ belongs to the server (deploys never write there): only the three status files and kick.php are
+# reachable. The folder itself and anything else in it is 403.
+RewriteRule ^_deploy(?:$|/(?!(?:live|meta|pull)\.json$|kick\.php$)) - [F,L]
+
+<IfModule mod_headers.c>
+  # status files are never cached
+  <If "%{REQUEST_URI} =~ m#^/_deploy/#">
+    Header set Cache-Control "no-store"
+  </If>
+</IfModule>
+# ---- /xserver-pull-deploy -----------------------------------------------------------------------------------------
