@@ -27,14 +27,14 @@ describe('kick.php', { skip: !PHP && 'php is not installed' }, () => {
     const base = tmp('xpd-kick-');
     const dir = tmp('xpd-kickdoc-');
     write(join(base, 'pull.sh'), '#!/bin/sh\nexit 0\n');
-    writeFileSync(join(dir, 'kick.php'), readFileSync(join(ROOT, 'server', 'kick.php'), 'utf8').replace('__BASE__', base.replace(/\\/g, '/')));
+    writeFileSync(join(dir, 'kick.php'), readFileSync(join(ROOT, 'server', 'kick.php'), 'utf8').replaceAll('__BASE__', base.replace(/\\/g, '/')));
     assert.equal(cgi(dir, 'GET').status, 405);
     const first = cgi(dir, 'POST');
     assert.equal(first.status, 202);
     assert.match(first.body, /"state":"(queued|busy)"/);
     assert.equal(cgi(dir, 'POST').status, 429);
     const empty = tmp('xpd-kickempty-');
-    writeFileSync(join(empty, 'kick.php'), readFileSync(join(ROOT, 'server', 'kick.php'), 'utf8').replace('__BASE__', '/nonexistent'));
+    writeFileSync(join(empty, 'kick.php'), readFileSync(join(ROOT, 'server', 'kick.php'), 'utf8').replaceAll('__BASE__', '/nonexistent'));
     assert.equal(cgi(empty, 'POST').status, 503);
   });
 });

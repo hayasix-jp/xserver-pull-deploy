@@ -208,22 +208,29 @@ write_live() {
 prune() {
   keep=$1
   cur=$(cat "$BASE/current" 2>/dev/null || true)
-  ls -1 "$RELEASES" | sort -r | tail -n +"$((keep + 1))" | while read -r old; do
+  ls -1 "$RELEASES" | LC_ALL=C sort -r | tail -n +"$((keep + 1))" | while read -r old; do
     if [ -n "$old" ] && [ "$old" != "$cur" ]; then rm -rf "${RELEASES:?}/$old"; fi
   done
   # leftovers of interrupted uploads (older than a day)
   if [ -d "$BASE/incoming" ]; then find "$BASE/incoming" -mindepth 1 -maxdepth 1 -mtime +0 -exec rm -rf {} + 2>/dev/null || true; fi
 }
 
-# release id: YYYYmmdd-HHMMSS, then -01, -02 … within the same second (sorts in publish order)
+# release id: YYYYmmdd-HHMMSS. When that does not sort after the newest release (same second, or the clock went
+# back), the newest id's time with the next -NN suffix: ids always sort in publish order, and an id pruned a moment
+# ago is never handed out again.
 new_release_id() {
   r=$(date +%Y%m%d-%H%M%S)
-  if [ -e "$RELEASES/$r" ]; then
-    k=1
-    while [ -e "$RELEASES/$r-$(printf '%02d' "$k")" ]; do k=$((k + 1)); done
-    r="$r-$(printf '%02d' "$k")"
+  last=$(ls -1 "$RELEASES" 2>/dev/null | LC_ALL=C sort | tail -n 1)
+  case "$last" in
+    ????????-??????) stamp=$last k=0 ;;
+    ????????-??????-*) stamp=${last%-*} k=${last##*-} ;;
+    *) printf '%s' "$r"; return ;;
+  esac
+  if [ "$r" != "$last" ] && [ "$(printf '%s\n%s\n' "$last" "$r" | LC_ALL=C sort | tail -n 1)" = "$r" ]; then
+    printf '%s' "$r"
+    return
   fi
-  printf '%s' "$r"
+  printf '%s-%02d' "$stamp" "$(expr "$k" + 1)"
 }
 
 # atomic install of one file: install_file <src> <dest> <mode>
@@ -311,7 +318,7 @@ case "$mode" in
     take_lock
     cur=$(cat "$BASE/current" 2>/dev/null || true)
     if [ -z "$target" ]; then
-      target=$(ls -1 "$RELEASES" 2>/dev/null | sort | awk -v c="$cur" '$0 == c { print prev; exit } { prev = $0 }')
+      target=$(ls -1 "$RELEASES" 2>/dev/null | LC_ALL=C sort | awk -v c="$cur" '$0 == c { print prev; exit } { prev = $0 }')
     fi
     [ -n "$target" ] || die "戻せる前のリリースがありません（xpd list で確認）" 67
     [ -d "$RELEASES/$target" ] || die "リリースが見つかりません: $target" 67
@@ -321,7 +328,7 @@ case "$mode" in
   list)
     cur=$(cat "$BASE/current" 2>/dev/null || true)
     [ -d "$RELEASES" ] || { say "まだリリースがありません"; exit 0; }
-    ls -1 "$RELEASES" | sort -r | while read -r r; do
+    ls -1 "$RELEASES" | LC_ALL=C sort -r | while read -r r; do
       mark='  '
       [ "$r" = "$cur" ] && mark='* '
       printf '%s%s  %s\n' "$mark" "$r" "$(head -n 1 "$RELEASES/$r/REVISION" 2>/dev/null || echo '-')"

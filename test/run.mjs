@@ -15,7 +15,7 @@ const walk = (d) => {
   }
 };
 walk(here);
-const pick = only.length ? files.filter((f) => only.some((o) => relative(here, f).includes(o))) : files;
+const pick = only.length ? files.filter((f) => only.some((o) => relative(here, f).replace(/\\/g, '/').includes(o))) : files;
 // On GitHub Actions, also report each failure as an error annotation (readable on the run page without signing in).
 const reporters = process.env.GITHUB_ACTIONS
   ? ['--test-reporter=spec', '--test-reporter-destination=stdout',

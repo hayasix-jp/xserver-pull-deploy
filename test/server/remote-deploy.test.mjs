@@ -106,6 +106,17 @@ describe('remote-deploy.sh', { skip: !SH && 'no sh' }, () => {
     assert.match(r.stdout, new RegExp(`^  ${rel[0]} `, 'm'));
   });
 
+  test('release ids sort after the newest one even when the clock is behind it (no reuse of a pruned id)', async () => {
+    const s = setup();
+    mkdirSync(join(s.base, 'releases', '29991231-235959-08'), { recursive: true });
+    for (const want of ['29991231-235959-09', '29991231-235959-10', '29991231-235959-11']) {
+      const r = await deploy(s, makeUpload(s.base, siteFiles({ title: want }), meta(randomSha())), '2');
+      assert.equal(r.code, 0, r.out);
+      assert.equal(current(s), want);
+    }
+    assert.deepEqual(releases(s), ['29991231-235959-10', '29991231-235959-11']);
+  });
+
   test('page-count guard (exit 71) and force', async () => {
     const s = setup();
     assert.equal((await deploy(s, makeUpload(s.base, siteFiles({ pages: 8 })))).code, 0);

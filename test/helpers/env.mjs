@@ -1,7 +1,7 @@
 // test/helpers/env.mjs — shared helpers: temp dirs, the local sh, path conversion for Git for Windows, a fake server
 // home with a docroot, running the server scripts, and a static file server over a docroot.
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { delimiter, dirname, join } from 'node:path';
@@ -39,7 +39,8 @@ process.on('exit', () => {
 });
 /** A fresh temp dir, removed when the test process exits (XPD_TEST_KEEP_TMP=1 keeps them for debugging). */
 export const tmp = (prefix = 'xpd-') => {
-  const d = mkdtempSync(join(tmpdir(), prefix));
+  // long names: a Windows 8.3 TEMP (C:\Users\RUNNER~1\…) would put "~" into the fake server paths
+  const d = realpathSync.native(mkdtempSync(join(tmpdir(), prefix)));
   created.push(d);
   return d;
 };
