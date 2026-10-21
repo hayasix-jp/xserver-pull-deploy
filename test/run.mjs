@@ -16,5 +16,10 @@ const walk = (d) => {
 };
 walk(here);
 const pick = only.length ? files.filter((f) => only.some((o) => relative(here, f).includes(o))) : files;
-const r = spawnSync(process.execPath, ['--test', '--test-concurrency=1', ...pick], { stdio: 'inherit' });
+// On GitHub Actions, also report each failure as an error annotation (readable on the run page without signing in).
+const reporters = process.env.GITHUB_ACTIONS
+  ? ['--test-reporter=spec', '--test-reporter-destination=stdout',
+    `--test-reporter=${new URL('./github-reporter.mjs', import.meta.url).href}`, '--test-reporter-destination=stdout']
+  : [];
+const r = spawnSync(process.execPath, ['--test', '--test-concurrency=1', ...reporters, ...pick], { stdio: 'inherit' });
 process.exit(r.status ?? 1);
