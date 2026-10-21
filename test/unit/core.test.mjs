@@ -8,11 +8,11 @@ import { test } from 'node:test';
 import { parseArgs } from '../../bin/xpd.mjs';
 import { makeBundle, rollbackMeta, sha256 } from '../../lib/bundle.mjs';
 import { loadConfig, parseEnvFile, problemsFor } from '../../lib/config.mjs';
-import { detect, init } from '../../lib/init.mjs';
+import { detect, init, xpdInvocation } from '../../lib/init.mjs';
 import { matches, matchesSelfOrParent, validProtect } from '../../lib/pattern.mjs';
 import { deployCmd, rollbackCmd } from '../../lib/remote.mjs';
 import { tarball } from '../../lib/tar.mjs';
-import { tmp, write } from '../helpers/env.mjs';
+import { IS_WIN, ROOT, tmp, write } from '../helpers/env.mjs';
 
 /** tar member names and types from a gzip'd ustar buffer */
 const listTar = (gz) => {
@@ -218,6 +218,9 @@ test('init: detects the generator and scaffolds config, env example, workflow, .
   assert.match(readFileSync(join(root, '.gitignore'), 'utf8'), /^\.env\.deploy$/m);
   assert.match(readFileSync(join(root, '.gitignore'), 'utf8'), /^node_modules\/$/m, 'an npm project never commits node_modules');
   assert.deepEqual(init(root, {}), [], 'never overwrites without --force');
+  assert.equal(xpdInvocation(join(ROOT, '..', 'other-site')), 'npx --no-install xpd', 'xpd outside the project');
+  assert.equal(xpdInvocation(join(ROOT, '..')), `node ${ROOT.split(/[\\/]/).pop()}/bin/xpd.mjs`, 'a copy inside the project');
+  if (IS_WIN) assert.equal(xpdInvocation(`${/^z/i.test(ROOT) ? 'Y' : 'Z'}:\\site`), 'npx --no-install xpd', 'another drive');
 
   const hugo = tmp('xpd-hugo-');
   writeFileSync(join(hugo, 'hugo.toml'), 'title = "x"\n');
